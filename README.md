@@ -246,3 +246,75 @@ canbusload can0@1000000
 ```
 candump -d -e can0 -H -t a
 ```
+
+## Useful commands
+
+> List CAN devices
+```
+cd ~/CanBoot/scripts
+python3 flash_can.py -i can0 -q
+```
+
+> Flash over can0 interface
+```
+python3 flash_can.py -i can0 -u d0548cb2fa73 -f ~/firmware/octopus_1.1_klipper.bin
+```
+
+> Flash over serial usb
+```
+python3 flash_can.py -d /dev/serial/by-id/usb-CanBoot_stm32f446xx_4A0021000651303431333234-if00 -f ~/firmware/octopus_1.1_klipper.bin
+```
+
+> can0 interface information
+```
+ip -details -statistics link show can0
+```
+
+## Update klipper on the Octopus
+
+### Useful tricks to be able to update an octopus 1.1 in `USB to Can Bridge`
+
+First thing you need to know is that you cannot update klipper on the octopus 1.1 over CAN.
+The reason is because the bord is actually running the CAN interface in bridge mode. When you use the tool to ask an UUID CAN device to be flashed, the board restart on the canboot bootloader to accept further command (flashing klipper). By restarting the CAN interface (can0) is actually killed as the board running the bridge is shotdown and restarted in canboot bootloader.
+
+The flash sequence cannot complet this way !
+
+### How to flash then ?!
+
+Since the board restarted on the canboot bootloader, the board is actually available as a serial usb device !
+You can now flash klipper directly using the serial usb.
+
+### Commands
+
+First you need to put your printer in emmergency stop. As soon as the printer is in emmergency you will need to restart the firmware AND immediatly stop klipper (killing klipper process quickly is very important as the board will boot on canboot then immediatly boot on klipper).
+
+
+> Put the board in emmergency stop, restart the firmware and kill klipper
+
+```
+systemctl stop klipper
+```
+
+
+> If you manage to kill fast enough klipper, you should been able to see the CAN device.
+```
+cd ~/CanBoot/scripts
+python3 flash_can.py -i can0 -q
+```
+
+> Trigger the board to restart on canboot bootloader
+```
+python3 flash_can.py -i can0 -u d0548cb2fa73 -f ~/firmware/octopus_1.1_klipper.bin
+```
+
+> You should now see the board as an serial usb device
+```
+ll /dev/serial/by-id
+```
+
+> Flash klipper to the board over serial usb
+```
+python3 flash_can.py -d /dev/serial/by-id/usb-CanBoot_stm32f446xx_4A0021000651303431333234-if00 -f ~/firmware/octopus_1.1_klipper.bin
+```
+
+Your board is now updated. You can restart everything.
