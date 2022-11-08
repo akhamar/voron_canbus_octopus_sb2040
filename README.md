@@ -51,28 +51,6 @@ mkdir ~/firmware
 mv ~/CanBoot/out/canboot.bin ~/firmware/octopus_1.1_canboot.bin
 ```
 
-## Klipper with CAN
-
-### Create images
-
-#### Klipper for octopus 1.1
-
-We will configure the firmware
-```
-cd ~/klipper
-make menuconfig
-```
-![coonboot firmware](images/octopus_klipper_firmware_config.png)
-
-And compile it
-```
-make
-```
-
-```
-mv ~/klipper/out/klipper.bin ~/firmware/octopus_1.1_klipper.bin
-```
-
 
 ### Flashing images
 
@@ -108,44 +86,36 @@ The board should now be flash with a canboot bootloader.
 
 **/!\\/!\\/!\\  You can now remove the purple jumper. /!\\/!\\/!\\**
 
+#### CanBoot for sb2040
 
-#### Klipper for octopus 1.1
+Set your sb2040 board to DFU. To do that, remove any power to the board, press the boot button while connecting the board to USB.
+The board should now be in DFU.
 
+To confirm that you can simple do a `lsubs`
+
+![coonboot firmware](images/sb2040_in_dfu.png)
+
+
+We will configure the firmware
 ```
-ls -al /dev/serial/by-id
-```
-> Note the serial of the octopus 1.1 board
-
-```
-cd ~/CanBoot/scripts
-pip3 install pyserial
-python3 flash_can.py -f ~/firmware/octopus_1.1_klipper.bin -d /dev/serial/by-id/usb-CanBoot_stm32f446xx_170038000650314D35323820-if00
-```
-
-The board should now be flash with a klipper can bridge.
-
-#### Klipper for sb2040
-
-```
-cd ~/klipper
+cd ~/CanBoot
 make menuconfig
 ```
-![coonboot firmware](images/sb2040_klipper_firmware_config.png)
+![coonboot firmware](images/sb2040_canboot_firmware_config.png)
+
+And compile it
 ```
-make -j4
-```
-```
-lsusb
-```
-![coonboot firmware](images/sb2040_in_dfu.png)
-```
-make flash FLASH_DEVICE=2e8a:0003
+make -j 4
 ```
 
-The board should now be flash with a klipper can.
+```
+sudo make flash FLASH_DEVICE=2e8a:0003
+```
 
 
-## Can Network
+## CAN Network
+
+We need to create the can0 interface for been able to flash the sb2040 over CAN.
 
 ```
 sudo nano /etc/network/interfaces.d/can0
@@ -188,6 +158,92 @@ RX: bytes  packets  errors  dropped overrun mcast
 TX: bytes  packets  errors  dropped carrier collsns
 3568       641      0       0       0       0
 ```
+
+
+## Klipper with CAN
+
+### Create images
+
+#### Klipper for octopus 1.1
+
+We will configure the firmware
+```
+cd ~/klipper
+make menuconfig
+```
+![coonboot firmware](images/octopus_klipper_firmware_config.png)
+
+And compile it
+```
+make
+```
+
+```
+mv ~/klipper/out/klipper.bin ~/firmware/octopus_1.1_klipper.bin
+```
+
+#### Klipper for sb2040
+
+We will configure the firmware
+```
+cd ~/klipper
+make menuconfig
+```
+![coonboot firmware](images/sb2040_klipper_firmware_config.png)
+
+And compile it
+```
+make
+```
+
+```
+mv ~/klipper/out/klipper.bin ~/firmware/sb2040_1.0_klipper.bin
+```
+
+
+### Flashing images
+
+#### Klipper for octopus 1.1
+
+```
+ls -al /dev/serial/by-id
+```
+> Note the serial of the octopus 1.1 board
+
+```
+cd ~/CanBoot/scripts
+pip3 install pyserial
+python3 flash_can.py -f ~/firmware/octopus_1.1_klipper.bin -d /dev/serial/by-id/usb-CanBoot_stm32f446xx_170038000650314D35323820-if00
+```
+
+The board should now be flash with a klipper can bridge.
+
+> If this part doesn't work or you don't manage to see the board as an USB device, refer to [Useful tricks](###-Useful-tricks-to-be-able-to-update-an-octopus-1.1-in-`USB-to-Can-Bridge`)
+
+#### Klipper for sb2040
+
+```
+cd ~/CanBoot/scripts
+python3 flash_can.py -i can0 -q
+```
+```
+Resetting all bootloader node IDs...
+Checking for canboot nodes...
+Detected UUID: c2ecdf459ba5, Application: Klipper
+Detected UUID: 685d07717632, Application: Klipper
+Query Complete
+```
+
+> Note the two serial UUID
+>
+> To differentiate which uuid correspond to which board, you can plug only one board and get it's serial UUID
+
+```
+python3 flash_can.py -i can0 -u SERIAL_UUID -f ~/firmware/sb2040_1.0_klipper.bin
+```
+
+The board should now be flash with a klipper can.
+
 
 ## Klipper config
 
