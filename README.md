@@ -125,7 +125,7 @@ sudo nano /etc/network/interfaces.d/can0
 allow-hotplug can0
 iface can0 can static
   bitrate 1000000
-  up ifconfig $IFACE txqueuelen 128
+  up ifconfig $IFACE txqueuelen 1024
 ```
 
 Power off/on everything
