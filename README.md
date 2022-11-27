@@ -135,7 +135,7 @@ Power off/on everything
 ip a
 ```
 ```
-can0: <NOARP,UP,LOWER_UP,ECHO> mtu 16 qdisc pfifo_fast state UP group default qlen 128
+can0: <NOARP,UP,LOWER_UP,ECHO> mtu 16 qdisc pfifo_fast state UP group default qlen 1024
 link/can
 ```
 
@@ -144,7 +144,7 @@ link/can
 ip -details -statistics link show can0
 ```
 ```
-can0: <NOARP,UP,LOWER_UP,ECHO> mtu 16 qdisc pfifo_fast state UP mode DEFAULT group default qlen 128
+can0: <NOARP,UP,LOWER_UP,ECHO> mtu 16 qdisc pfifo_fast state UP mode DEFAULT group default qlen 1024
 link/can  promiscuity 0 minmtu 0 maxmtu 0
 can state ERROR-ACTIVE restart-ms 0
         bitrate 1000000 sample-point 0.750
