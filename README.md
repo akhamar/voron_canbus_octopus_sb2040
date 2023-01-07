@@ -61,7 +61,7 @@ Set your octopus 1.1 board to DFU. To do that, remove the blue jumper and put it
 
 Once done power the board, wait a few second then hit the green button once. The board should boot in DFU mode.
 
-To confirm that you can simple do a `lsubs`
+To confirm that you can simple do a `lsusb`
 
 ![octopus 1.1 dfu mode](images/octopus_1.1_in_dfu.png)
 
@@ -91,7 +91,7 @@ The board should now be flash with a canboot bootloader.
 Set your sb2040 board to DFU. To do that, remove any power to the board, press the boot button while connecting the board to USB.
 The board should now be in DFU.
 
-To confirm that you can simple do a `lsubs`
+To confirm that you can simple do a `lsusb`
 
 ![coonboot firmware](images/sb2040_in_dfu.png)
 
